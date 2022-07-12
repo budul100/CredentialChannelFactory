@@ -16,13 +16,14 @@ namespace CredentialChannelFactory
 
         private readonly ChannelFactory<T> channelFactory;
 
-        private bool disposed = false;
+        private bool disposed;
 
         #endregion Private Fields
 
         #region Public Constructors
 
-        public Factory(string url, string userName, string password, bool notIgnoreCertificateErrors = false)
+        public Factory(string url, string userName, string password, TimeSpan? timeout = default,
+            bool notIgnoreCertificateErrors = false)
         {
             if (!notIgnoreCertificateErrors)
             {
@@ -35,11 +36,12 @@ namespace CredentialChannelFactory
                 url: url,
                 userName: userName,
                 password: password,
-                isHttps: isHttps);
+                isHttps: isHttps,
+                timeout: timeout);
         }
 
-        public Factory(string host, int port, string path, string userName, string password, bool isHttps = true,
-            bool notIgnoreCertificateErrors = false)
+        public Factory(string host, int port, string path, string userName, string password,
+            bool isHttps = true, TimeSpan? timeout = default, bool notIgnoreCertificateErrors = false)
         {
             if (!notIgnoreCertificateErrors)
             {
@@ -56,7 +58,8 @@ namespace CredentialChannelFactory
                 url: url,
                 userName: userName,
                 password: password,
-                isHttps: isHttps);
+                isHttps: isHttps,
+                timeout: timeout);
         }
 
         #endregion Public Constructors
@@ -96,15 +99,15 @@ namespace CredentialChannelFactory
 
         private static void IgnoreCertificateErrors()
         {
-            ServicePointManager.ServerCertificateValidationCallback =
-                (sender, certificate, chain, sslPolicyErrors) => { return true; };
+            ServicePointManager.ServerCertificateValidationCallback = (_, __, ___, ____) => true;
         }
 
-        private ChannelFactory<T> GetChannelFactory(string url, string userName, string password, bool isHttps)
+        private ChannelFactory<T> GetChannelFactory(string url, string userName, string password, bool isHttps,
+            TimeSpan? timeout)
         {
             var binding = isHttps
-                ? GetHttpsBinding()
-                : GetHttpBinding();
+                ? GetHttpsBinding(timeout)
+                : GetHttpBinding(timeout);
 
             var address = new EndpointAddress(new Uri(url));
 
@@ -118,7 +121,7 @@ namespace CredentialChannelFactory
             return result;
         }
 
-        private Binding GetHttpBinding()
+        private Binding GetHttpBinding(TimeSpan? timeout)
         {
             var result = new BasicHttpBinding();
 
@@ -130,10 +133,15 @@ namespace CredentialChannelFactory
             result.MaxReceivedMessageSize = int.MaxValue;
             result.AllowCookies = true;
 
+            if (timeout.HasValue)
+            {
+                result.SendTimeout = timeout.Value;
+            }
+
             return result;
         }
 
-        private Binding GetHttpsBinding()
+        private Binding GetHttpsBinding(TimeSpan? timeout)
         {
             var result = new BasicHttpsBinding();
 
@@ -145,12 +153,21 @@ namespace CredentialChannelFactory
             result.MaxReceivedMessageSize = int.MaxValue;
             result.AllowCookies = true;
 
+            if (timeout.HasValue)
+            {
+                result.SendTimeout = timeout.Value;
+            }
+
             return result;
         }
 
         private string GetUrl(string host, int port, string path, bool ishttps)
         {
-            var result = (ishttps ? HttpsAddress : HttpAddress) + $"://{host}:{port}/{path}";
+            var prefix = ishttps
+                ? HttpsAddress
+                : HttpAddress;
+
+            var result = $"{prefix}://{host}:{port}/{path}";
 
             return result;
         }
