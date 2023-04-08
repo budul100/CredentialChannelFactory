@@ -64,6 +64,12 @@ namespace CredentialChannelFactory
 
         #endregion Public Constructors
 
+        #region Public Properties
+
+        public Uri Uri { get; private set; }
+
+        #endregion Public Properties
+
         #region Public Methods
 
         public void Dispose()
@@ -73,7 +79,7 @@ namespace CredentialChannelFactory
 
         public T Get()
         {
-            return channelFactory.CreateChannel() as T;
+            return channelFactory.CreateChannel();
         }
 
         #endregion Public Methods
@@ -110,6 +116,8 @@ namespace CredentialChannelFactory
                 : GetHttpBinding(timeout);
 
             var address = new EndpointAddress(new Uri(url));
+
+            Uri = address?.Uri;
 
             var result = new ChannelFactory<T>(
                 binding: binding,
