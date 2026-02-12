@@ -1,9 +1,11 @@
+using System;
 using System.ServiceModel;
+using System.Threading.Tasks;
 using CredentialChannelFactory.Configuration;
 using CredentialChannelFactory.Tests.Helpers;
 using Xunit;
 
-namespace CredentialChannelFactory.Tests.Tests
+namespace CredentialChannelFactory.Tests
 {
     /// <summary>
     /// Integration tests that require a real WCF service to be running.

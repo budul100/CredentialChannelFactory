@@ -4,6 +4,9 @@ using CredentialChannelFactory.Configuration;
 
 namespace CredentialChannelFactory.Endpoint
 {
+    /// <summary>
+    /// Provides extension methods for WCF endpoints to create factory instances with credentials.
+    /// </summary>
     public static class EndpointExtensions
     {
         #region Public Methods

@@ -1,9 +1,10 @@
 using System.ServiceModel;
 using System.ServiceModel.Channels;
+using System.Threading.Tasks;
 
 namespace CredentialChannelFactory.Tests.Helpers
 {
-    // Test Service Contract für die Tests
+    // Test Service Contract for the tests
     [ServiceContract]
     public interface ITestService
         : IChannel

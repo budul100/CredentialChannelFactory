@@ -1,3 +1,4 @@
+using System;
 using CredentialChannelFactory.Configuration;
 using CredentialChannelFactory.Endpoint;
 

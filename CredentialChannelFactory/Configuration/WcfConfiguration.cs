@@ -14,7 +14,7 @@ namespace CredentialChannelFactory.Configuration
         /// </summary>
         public WcfConfiguration()
         {
-            TrustedCertificateThumbprints = Array.Empty<string>();
+            TrustedCertificateThumbprints = [];
         }
 
         #endregion Public Constructors

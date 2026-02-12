@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using CredentialChannelFactory.Configuration;
 using CredentialChannelFactory.Endpoint;
@@ -154,6 +157,7 @@ namespace CredentialChannelFactory.Tests
         public void Dispose()
         {
             // Cleanup after each test
+            GC.SuppressFinalize(this);
         }
 
         [Fact]
@@ -219,9 +223,9 @@ namespace CredentialChannelFactory.Tests
             var threads = new Thread[threadCount];
 
             // Act
-            for (int i = 0; i < threadCount; i++)
+            for (var i = 0; i < threadCount; i++)
             {
-                int threadIndex = i;
+                var threadIndex = i;
                 threads[i] = new Thread(() =>
                 {
                     try
@@ -258,7 +262,7 @@ namespace CredentialChannelFactory.Tests
             using var factory = CreateTestFactory();
 
             // Act & Assert
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
                 var exception = Record.Exception(() =>
                 {
@@ -388,7 +392,7 @@ namespace CredentialChannelFactory.Tests
 
             // Act
             var tasks = new Task[5];
-            for (int i = 0; i < tasks.Length; i++)
+            for (var i = 0; i < tasks.Length; i++)
             {
                 tasks[i] = Task.Run(async () =>
                 {

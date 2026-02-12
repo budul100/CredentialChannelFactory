@@ -6,10 +6,10 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using CredentialChannelFactory.Configuration;
 using CredentialChannelFactory.Endpoint;
 using CredentialChannelFactory.Exceptions;
-using Microsoft.Extensions.Logging;
 
 namespace CredentialChannelFactory
 {
@@ -30,7 +30,7 @@ namespace CredentialChannelFactory
         private readonly ChannelFactory<T> channelFactory;
         private readonly WcfConfiguration configuration;
         private readonly ILogger<Factory<T>> logger;
-        private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim semaphore = new(1, 1);
 
         private bool disposed;
 
@@ -396,10 +396,7 @@ namespace CredentialChannelFactory
         /// <exception cref="ObjectDisposedException">Thrown when the factory has been disposed.</exception>
         private void ThrowIfDisposed()
         {
-            if (disposed)
-            {
-                throw new ObjectDisposedException(nameof(Factory<T>));
-            }
+            ObjectDisposedException.ThrowIf(disposed, nameof(Factory<T>));
         }
 
         /// <summary>
