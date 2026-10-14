@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -8,7 +9,6 @@ using CredentialChannelFactory.Exceptions;
 using CredentialChannelFactory.Tests.Helpers;
 using Moq;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace CredentialChannelFactory.Tests
 {
@@ -448,29 +448,36 @@ namespace CredentialChannelFactory.Tests
         [Fact]
         public async Task GetAsync_WithCancellationDuringSemaphoreWait_ShouldRespectCancellation()
         {
-            // Arrange - Create a factory and block the semaphore
+            // Arrange
             await using var factory = CreateTestFactory();
-            using var cts1 = new CancellationTokenSource();
-            using var cts2 = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
 
-            // Block the semaphore with a long-running task
-            var blockingTask = factory.GetAsync(cts1.Token);
+            var semaphore = (SemaphoreSlim)typeof(Factory<ITestService>)
+                .GetField("semaphore", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(factory)!;
 
-            // Act & Assert - Second call should be cancelled while waiting for semaphore
-            var exception = await Assert.ThrowsAsync<OperationCanceledException>(() =>
-                factory.GetAsync(cts2.Token));
+            // Hold the semaphore so that the next call has to wait
+            await semaphore.WaitAsync();
 
-            Assert.IsType<OperationCanceledException>(exception);
-
-            // Cleanup
-            cts1.Cancel(); // Cancel the blocking task
             try
             {
-                await blockingTask;
+                using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+
+                // Act & Assert (TaskCanceledException derives from OperationCanceledException)
+                await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+                    factory.GetAsync(cts.Token));
             }
-            catch (OperationCanceledException)
+            finally
             {
-                // Expected
+                semaphore.Release();
+            }
+
+            // The cancelled waiter must not have leaked the semaphore
+            using var workingCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            var exception = await Record.ExceptionAsync(() => factory.GetAsync(workingCts.Token));
+
+            if (exception != null)
+            {
+                Assert.IsType<ChannelCreationException>(exception);
             }
         }
 
