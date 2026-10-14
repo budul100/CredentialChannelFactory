@@ -1,44 +1,37 @@
 # CredentialChannelFactory
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![NuGet](https://img.shields.io/nuget/v/budul.CredentialChannelFactory.svg)](https://www.nuget.org/packages/budul.CredentialChannelFactory/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/budul100/CredentialChannelFactory/blob/main/LICENSE) [![NuGet](https://img.shields.io/nuget/v/budul.CredentialChannelFactory.svg)](https://www.nuget.org/packages/budul.CredentialChannelFactory/)
 
-A .NET library for secure credential management and WCF channel creation, supporting both .NET 8 and .NET Standard 2.1.
+Factory for creating WCF/SOAP web service channels with credentials.
 
 ## Features
 
-- Secure credential handling with WCF services
+- Credential handling for WCF services
 - Thread-safe channel factory utilities
 - Async/await support with proper cancellation handling
 - Configurable SSL certificate validation
-- Unit tests included for robust validation
-- Cross-platform support via .NET Standard 2.1
+
+## Supported frameworks
+
+net8.0, net9.0, net10.0
 
 ## Installation
 
-### Via NuGet Package Manager
-
 ```bash
-Install-Package CredentialChannelFactory
+dotnet add package budul.CredentialChannelFactory
 ```
 
-### Via .NET CLI
-
-```bash
-dotnet add package CredentialChannelFactory
-```
-
-### Via PackageReference
-
-Add this to your `.csproj` file:
+Or via PackageReference:
 
 ```xml
-<PackageReference Include="CredentialChannelFactory" Version="1.0.0" />
+<PackageReference Include="budul.CredentialChannelFactory" Version="3.0.0" />
 ```
 
 ## Quick Start
 
 ```csharp
 using CredentialChannelFactory;
+using System.ServiceModel;
 
 // Create factory
 using var factory = new Factory<IMyService>(
@@ -55,53 +48,6 @@ if (service is IClientChannel channel)
     channel.Close();
 ```
 
-## Getting Started
-
-### Prerequisites
-
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or compatible runtime
-- Optionally, any environment supporting .NET Standard 2.1
-
-### Build from Source
-
-Clone the repository:
-
-```bash
-git clone https://github.com/yourusername/CredentialChannelFactory.git 
-cd CredentialChannelFactory
-```
-
-Restore dependencies:
-
-```bash
-dotnet restore
-```
-
-Build the solution:
-
-```bash
-dotnet build
-```
-
-### Running Tests
-
-To run the included unit tests:
-
-```bash
-dotnet test
-```
-
-### Usage in Your Project
-
-After installing the NuGet package, import the relevant namespaces:
-
-```csharp
-using CredentialChannelFactory;
-using System.ServiceModel;
-```
-
-Then use the provided factories and helpers as needed in your WCF client applications.
-
 ## Configuration
 
 ```csharp
@@ -116,9 +62,15 @@ var endpoint = new WcfEndpoint("api.example.com", 443, "service.svc");
 using var factory = new Factory<IMyService>(endpoint, "user", "pass", config);
 ```
 
-## Contributing
+## Build from source
 
-Contributions are welcome! Please open issues or submit pull requests for improvements and bug fixes.
+Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (builds all target frameworks).
+
+```bash
+git clone https://github.com/budul100/CredentialChannelFactory.git
+cd CredentialChannelFactory
+dotnet test
+```
 
 ## License
 
