@@ -2,21 +2,20 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Threading.Tasks;
 
-namespace CredentialChannelFactory.Tests.Helpers
+namespace CredentialChannelFactory.Tests.Helpers;
+
+// Test Service Contract for the tests
+[ServiceContract]
+public interface ITestService
+    : IChannel
 {
-    // Test Service Contract for the tests
-    [ServiceContract]
-    public interface ITestService
-        : IChannel
-    {
-        #region Public Methods
+    #region Public Methods
 
-        [OperationContract]
-        string GetData(string value);
+    [OperationContract]
+    string GetData(string value);
 
-        [OperationContract]
-        Task<string> GetDataAsync(string value);
+    [OperationContract]
+    Task<string> GetDataAsync(string value);
 
-        #endregion Public Methods
-    }
+    #endregion Public Methods
 }
